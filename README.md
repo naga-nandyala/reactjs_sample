@@ -124,7 +124,7 @@ az containerapp env create --name reactjs-env --resource-group rg-nagan-reactjs 
 az acr update --name naganreactjsacr --resource-group rg-nagan-reactjs --admin-enabled true
 az acr credential show --name naganreactjsacr --resource-group rg-nagan-reactjs
 
-docker login naganreactjsacr.azurecr.io --username naganreactjsacr --password xxxx
+
 
 ----- version 2
 docker build -t reactjs-sample .
