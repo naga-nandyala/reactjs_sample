@@ -159,14 +159,14 @@ az ad sp create --id $appId
 
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-# Assign AcrPush role for ACR
+# Assign AcrPush role for ACR (???)
 
 az role assignment create \
  --assignee $appId \
   --role "AcrPush" \
   --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/rg-nagan-reactjs/providers/Microsoft.ContainerRegistry/registries/naganreactjsacr"
 
-# Assign Contributor role for Container App
+# Assign Contributor role for Container App (???)
 
 az role assignment create \
  --assignee $appId \
@@ -188,3 +188,16 @@ gh secret list --repo $githubOrganizationName/$githubRepositoryName
 gh secret set AZURE_CLIENT_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_CLIENT_ID
 gh secret set AZURE_TENANT_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_TENANT_ID
 gh secret set AZURE_SUBSCRIPTION_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_SUBSCRIPTION_ID
+
+
+ 
+
+
+az ad app federated-credential create \
+  --id $appId \
+  --parameters '{
+    "name": "github-oidc",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subject": "repo:'"$githubOrganizationName"'/'"$githubRepositoryName"':ref:refs/heads/main",
+    "audiences": ["api://AzureADTokenExchange"]
+  }'
