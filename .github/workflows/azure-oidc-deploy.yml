@@ -60,3 +60,13 @@ jobs:
           --resource-group rg-nagan-reactjs \
           --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }} \
           --env-vars REACT_APP_EXAMPLE=${{ secrets.REACT_APP_EXAMPLE }}
+
+
+        #   - name: Deploy to Azure Container App
+        #   run: |
+        #     az containerapp update \
+        #       --name reactjs-app \
+        #       --resource-group rg-nagan-reactjs \
+        #       --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }} \
+        #       --env-vars REACT_APP_EXAMPLE="@Microsoft.KeyVault(SecretUri=https://<your-keyvault-name>.vault.azure.net/secrets/REACT_APP_EXAMPLE)"
+                  

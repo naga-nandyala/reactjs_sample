@@ -10,7 +10,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit feat3 changes <code>src/App.js</code> and save to reload.
+          Edit feat4 demo changes <code>src/App.js</code> and save to reload.
           <br />
           Environment variable: {process.env.REACT_APP_EXAMPLE || "Not defined"}
         </p>

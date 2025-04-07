@@ -111,6 +111,9 @@ az containerapp create \
  --target-port 80 \
  --ingress external
 
+
+
+
 az login
 az login --tenant=16b3c013-d300-468d-ac64-7eda0820b6d3
 az group create --name rg-nagan-reactjs --location australiaeast
@@ -154,11 +157,8 @@ az ad app create --display-name "nagan-sp-github-actions" --query appId -o tsv
 appId=$(az ad app list --display-name "nagan-sp-github-actions" --query "[0].appId" -o tsv)
 az ad sp create --id $appId
 
-# Get your subscription ID
 
-SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-# Assign AcrPush role for ACR (???)
+<!-- # Assign AcrPush role for ACR (???)
 
 az role assignment create \
  --assignee $appId \
@@ -172,7 +172,7 @@ az role assignment create \
   --role "Contributor" \
   --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/rg-nagan-reactjs/providers/Microsoft.App/containerApps/reactjs-app"
 
-echo "Tenant ID: $(az account show --query tenantId -o tsv)" && echo "Subscription ID: $(az account show --query id -o tsv)" && echo "Application ID: $appId"
+echo "Tenant ID: $(az account show --query tenantId -o tsv)" && echo "Subscription ID: $(az account show --query id -o tsv)" && echo "Application ID: $appId" -->
 
 # create them in github
 
@@ -200,3 +200,22 @@ az ad app federated-credential create \
     "subject": "repo:'"$githubOrganizationName"'/'"$githubRepositoryName"':ref:refs/heads/main",
     "audiences": ["api://AzureADTokenExchange"]
   }'
+
+
+--- keyvalut
+keyVaultName="kvnaganreactjs"
+resourceGroup="rg-nagan-reactjs"
+az keyvault create --name $keyVaultName --resource-group $resourceGroup --enable-purge-protection false --enable-soft-delete true
+
+az keyvault secret set --vault-name YourKeyVaultName --name "REACT_APP_EXAMPLE" --value "my-kv-react-js-secret"
+
+az role assignment create --assignee <your-service-principal-id> \
+  --role "Key Vault Secrets Reader" \
+  --scope /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.KeyVault/vaults/<your-keyvault-name>
+
+
+az containerapp update \
+  --name reactjs-app \
+  --resource-group rg-nagan-reactjs \
+  --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }} \
+  --env-vars REACT_APP_EXAMPLE="@Microsoft.KeyVault(SecretUri=https://<your-keyvault-name>.vault.azure.net/secrets/REACT_APP_EXAMPLE)"
