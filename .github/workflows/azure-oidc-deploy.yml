@@ -52,12 +52,11 @@ jobs:
           naganreactjsacr.azurecr.io/reactjs-sample:latest
           naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }}
           naganreactjsacr.azurecr.io/reactjs-sample:${{ github.run_number }}
-        build-args: |
-          REACT_APP_EXAMPLE=${{ secrets.REACT_APP_EXAMPLE }}
-    
+
     - name: Deploy to Azure Container App
       run: |
         az containerapp update \
           --name reactjs-app \
           --resource-group rg-nagan-reactjs \
-          --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }}
+          --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }} \
+          --env-vars REACT_APP_EXAMPLE=${{ secrets.REACT_APP_EXAMPLE }}

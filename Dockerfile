@@ -3,12 +3,6 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Set the build argument for REACT_APP_EXAMPLE
-ARG REACT_APP_EXAMPLE
-
-# Make sure the environment variable is available during the build process
-ENV REACT_APP_EXAMPLE=$REACT_APP_EXAMPLE
-
 # Copy package files and install dependencies
 COPY package.json package-lock.json* ./ 
 RUN npm ci
