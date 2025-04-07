@@ -47,47 +47,32 @@ jobs:
     - name: Get all secrets from Key Vault
       id: get-secrets
       run: |
-        # Create a .env file for build arguments
-        touch .env.build
-        
-        # Get all secrets from the Key Vault and add them to the .env file
-        SECRET_NAMES=$(az keyvault secret list --vault-name "kvnaganreactjs1" --query "[].name" -o tsv)
-        
-        # Define the list of secrets you want to retrieve
-        # SECRETS=(
-        #     "REACT-APP-EXAMPLE" 
-        #     "REACT-APP-API-URL" 
-        #     "REACT-APP-FEATURE-FLAGS"
-        #     "REACT-APP-AUTH-ENABLED"
-        #     "REACT-APP-ANALYTICS-ID"
-        # )
-        SECRETS=("REACT-APP-EXAMPLE")
+          SECRETS=("REACT-APP-EXAMPLE")
+          
+          BUILD_ARGS=""
+          for SECRET_NAME in "${SECRETS[@]}"; do
+            ENV_NAME=$(echo $SECRET_NAME | tr '-' '_')
+            SECRET_VALUE=$(az keyvault secret show --vault-name "kvnaganreactjs1" --name "$SECRET_NAME" --query value -o tsv)
+            
+            echo "::add-mask::$SECRET_VALUE"
+            
+            # Append to output string
+            BUILD_ARGS+="--build-arg $ENV_NAME=$SECRET_VALUE "
+          done
+          
+          echo "build_args=$BUILD_ARGS" >> $GITHUB_OUTPUT
 
-        # Process each predefined secret
-        for SECRET_NAME in "${SECRETS[@]}"; do
-        # Convert hyphenated Key Vault name format to underscore format for React
-        ENV_NAME=$(echo $SECRET_NAME | tr '-' '_')
-        
-        # Get the secret value
-        SECRET_VALUE=$(az keyvault secret show --vault-name "kvnaganreactjs1" --name "$SECRET_NAME" --query value -o tsv)
-        
-        # Mask the secret in logs
-        echo "::add-mask::$SECRET_VALUE"
-        
-        # Add to .env file
-        echo "$ENV_NAME=$SECRET_VALUE" >> .env.build
-        done
-      
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        build-args-file: .env.build
         tags: |
             naganreactjsacr.azurecr.io/reactjs-sample:latest
             naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }}
             naganreactjsacr.azurecr.io/reactjs-sample:${{ github.run_number }}
+        build-args: ${{ steps.get-secrets.outputs.build_args }}
+    
 
     - name: Deploy to Azure Container App
       run: |

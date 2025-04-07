@@ -216,7 +216,7 @@ az role assignment create \
 
 
 
-az keyvault secret set --vault-name $AZURE_KEY_VAULT_NAME --name "REACT-APP-EXAMPLE" --value "my-kv-react-js-secret"
+az keyvault secret set --vault-name $AZURE_KEY_VAULT_NAME --name "REACT-APP-EXAMPLE" --value "naga-secret-value"
 
 
 az role assignment create --assignee $AZURE_CLIENT_ID \
