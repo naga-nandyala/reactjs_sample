@@ -203,19 +203,23 @@ az ad app federated-credential create \
 
 
 --- keyvalut
-keyVaultName="kvnaganreactjs"
-resourceGroup="rg-nagan-reactjs"
-az keyvault create --name $keyVaultName --resource-group $resourceGroup --enable-purge-protection false --enable-soft-delete true
-
-az keyvault secret set --vault-name YourKeyVaultName --name "REACT_APP_EXAMPLE" --value "my-kv-react-js-secret"
-
-az role assignment create --assignee <your-service-principal-id> \
-  --role "Key Vault Secrets Reader" \
-  --scope /subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.KeyVault/vaults/<your-keyvault-name>
+az keyvault create --name $AZURE_KEY_VAULT_NAME --resource-group $AZURE_RESOURCE_GROUP
 
 
-az containerapp update \
-  --name reactjs-app \
-  --resource-group rg-nagan-reactjs \
-  --image naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }} \
-  --env-vars REACT_APP_EXAMPLE="@Microsoft.KeyVault(SecretUri=https://<your-keyvault-name>.vault.azure.net/secrets/REACT_APP_EXAMPLE)"
+# Get your user object ID
+currentUserObjectId=$(az ad signed-in-user show --query id --output tsv)
+# Assign the Key Vault Secrets Officer role to your user account
+az role assignment create \
+  --assignee $currentUserObjectId \
+  --role "Key Vault Secrets Officer" \
+  --scope "/subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$AZURE_RESOURCE_GROUP/providers/microsoft.keyvault/vaults/$AZURE_KEY_VAULT_NAME"
+
+
+
+az keyvault secret set --vault-name $AZURE_KEY_VAULT_NAME --name "REACT-APP-EXAMPLE" --value "my-kv-react-js-secret"
+
+
+az role assignment create --assignee $AZURE_CLIENT_ID \
+  --role "Key Vault Secrets User" \
+  --scope /subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$AZURE_RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$AZURE_KEY_VAULT_NAME
+
