@@ -70,3 +70,121 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+### container app
+
+#### Step 1: Create Azure Resource Group
+
+The resource group rg-nagan-reactjs has been successfully created in the Australia East region! Now let's continue with the deployment process.
+
+#### Step 2: Create Azure Container Registry (ACR)
+
+Let's create an Azure Container Registry to store your Docker images:
+
+The Azure Container Registry (ACR) called "naganreactjsacr" has been successfully created in your resource group. The registry URL is naganreactjsacr.azurecr.io.
+
+Now, let's log in to the Azure Container Registry and push our Docker image:
+
+#### Step 3: Log in to ACR and prepare our image
+
+I can see that we've successfully logged in to your Azure Container Registry. Now let's tag your Docker image and push it to the registry:
+
+I've successfully tagged the local Docker image with the Azure Container Registry name. Now let's push the image to the registry:
+
+az group create --name rg-nagan-reactjs --location australiaeast  
+az acr create --resource-group rg-nagan-reactjs --name naganreactjsacr --sku Basic  
+az acr login --name naganreactjsacr  
+docker tag reactjs-sample naganreactjsacr.azurecr.io/reactjs-sample:v1  
+docker push naganreactjsacr.azurecr.io/reactjs-sample:v1  
+az containerapp env create --name reactjs-env --resource-group rg-nagan-reactjs --location australiaeast
+
+az acr update --name naganreactjsacr --resource-group rg-nagan-reactjs --admin-enabled true
+
+az acr credential show --name naganreactjsacr --resource-group rg-nagan-reactjs
+
+az containerapp create \
+ --name reactjs-app \
+ --resource-group rg-nagan-reactjs \
+ --environment reactjs-env \
+ --image naganreactjsacr.azurecr.io/reactjs-sample:v1 \
+ --registry-server naganreactjsacr.azurecr.io \
+ --target-port 80 \
+ --ingress external
+
+az login
+az login --tenant=16b3c013-d300-468d-ac64-7eda0820b6d3
+az group create --name rg-nagan-reactjs --location australiaeast
+az acr create --resource-group rg-nagan-reactjs --name naganreactjsacr --sku Basic
+az acr login --name naganreactjsacr
+docker build -t reactjs-sample .
+docker tag reactjs-sample naganreactjsacr.azurecr.io/reactjs-sample:v1
+docker push naganreactjsacr.azurecr.io/reactjs-sample:v1
+az containerapp env create --name reactjs-env --resource-group rg-nagan-reactjs --location australiaeast
+
+az acr update --name naganreactjsacr --resource-group rg-nagan-reactjs --admin-enabled true
+az acr credential show --name naganreactjsacr --resource-group rg-nagan-reactjs
+
+docker login naganreactjsacr.azurecr.io --username naganreactjsacr --password r3xZ1lnH+bDZwEFATZi6z+s5rrhKaVq+f33SpVYZ+/+ACRDpplJ/
+
+----- version 2
+docker build -t reactjs-sample .
+docker tag reactjs-sample naganreactjsacr.azurecr.io/reactjs-sample:v2
+az acr login --name naganreactjsacr
+docker push naganreactjsacr.azurecr.io/reactjs-sample:v2
+az containerapp update --name reactjs-app --resource-group rg-nagan-reactjs --image naganreactjsacr.azurecr.io/reactjs-sample:v2
+
+export subscription_id=03f1b09d-e1a8-4a85-b5c4-34dd536ca458
+---- cicd (sp and others)
+az ad app create --display-name "nagan-sp-github-actions"
+
+appId=$(az ad app list --display-name "nagan-sp-github-actions" --query "[0].appId" -o tsv)
+
+az ad sp create --id $appId
+
+az role assignment create \
+ --assignee $appId \
+  --role contributor \
+  --scope /subscriptions/$subscription_id/resourceGroups/rg-nagan-reactjs
+
+ACR_USERNAME=$(az acr credential show --name naganreactjsacr --resource-group rg-nagan-reactjs --query username -o tsv)
+
+ACR_PASSWORD=$(az acr credential show --name naganreactjsacr --resource-group rg-nagan-reactjs --query "passwords[?name=='password'].value" -o tsv)
+
+------------------ app and sp creation
+az ad app create --display-name "nagan-sp-github-actions" --query appId -o tsv
+appId=$(az ad app list --display-name "nagan-sp-github-actions" --query "[0].appId" -o tsv)
+az ad sp create --id $appId
+
+# Get your subscription ID
+
+SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+# Assign AcrPush role for ACR
+
+az role assignment create \
+ --assignee $appId \
+  --role "AcrPush" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/rg-nagan-reactjs/providers/Microsoft.ContainerRegistry/registries/naganreactjsacr"
+
+# Assign Contributor role for Container App
+
+az role assignment create \
+ --assignee $appId \
+  --role "Contributor" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/rg-nagan-reactjs/providers/Microsoft.App/containerApps/reactjs-app"
+
+echo "Tenant ID: $(az account show --query tenantId -o tsv)" && echo "Subscription ID: $(az account show --query id -o tsv)" && echo "Application ID: $appId"
+
+# create them in github
+
+githubOrganizationName="naga-nandyala"
+githubRepositoryName="reactjs_sample"
+resourceGroup="rg-nagan-reactjs"
+AZURE_TENANT_ID=$(az account show --query tenantId -o tsv)
+AZURE_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+AZURE_CLIENT_ID=$appId
+
+gh secret list --repo $githubOrganizationName/$githubRepositoryName
+gh secret set AZURE_CLIENT_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_CLIENT_ID
+gh secret set AZURE_TENANT_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_TENANT_ID
+gh secret set AZURE_SUBSCRIPTION_ID --repo $githubOrganizationName/$githubRepositoryName --body $AZURE_SUBSCRIPTION_ID
