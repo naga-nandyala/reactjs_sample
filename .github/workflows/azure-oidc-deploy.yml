@@ -54,7 +54,13 @@ jobs:
         SECRET_NAMES=$(az keyvault secret list --vault-name "kvnaganreactjs1" --query "[].name" -o tsv)
         
         # Define the list of secrets you want to retrieve
-        # SECRETS=("REACT-APP-EXAMPLE" "REACT-APP-API-URL" "REACT-APP-FEATURE-FLAGS")
+        # SECRETS=(
+        #     "REACT-APP-EXAMPLE" 
+        #     "REACT-APP-API-URL" 
+        #     "REACT-APP-FEATURE-FLAGS"
+        #     "REACT-APP-AUTH-ENABLED"
+        #     "REACT-APP-ANALYTICS-ID"
+        # )
         SECRETS=("REACT-APP-EXAMPLE")
 
         # Process each predefined secret
