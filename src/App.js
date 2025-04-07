@@ -8,6 +8,8 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit feat2 changes<code>src/App.js</code> and save to reload.
+          <br />
+          Environment variable: {process.env.REACT_APP_EXAMPLE || "Not defined"}
         </p>
         <a
           className="App-link"

@@ -131,8 +131,7 @@ docker build -t reactjs-sample .
 docker tag reactjs-sample naganreactjsacr.azurecr.io/reactjs-sample:v2
 az acr login --name naganreactjsacr
 docker push naganreactjsacr.azurecr.io/reactjs-sample:v2
-az containerapp update --name reactjs-app --resource-group rg-nagan-reactjs --image naganreactjsacr.azurecr.io/reactjs-sample:v2
-
+az containerapp update --name reactjs-app --resource-group rg-nagan-reactjs --image naganreactjsacr.azurecr.io/reactjs-sample:v2 --set-env-vars "REACT_APP_EXAMPLE=nagan-abc"
 
 ---- cicd (sp and others)
 az ad app create --display-name "nagan-sp-github-actions"
