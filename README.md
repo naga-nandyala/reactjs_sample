@@ -133,7 +133,7 @@ az acr login --name naganreactjsacr
 docker push naganreactjsacr.azurecr.io/reactjs-sample:v2
 az containerapp update --name reactjs-app --resource-group rg-nagan-reactjs --image naganreactjsacr.azurecr.io/reactjs-sample:v2
 
-export subscription_id=03f1b09d-e1a8-4a85-b5c4-34dd536ca458
+
 ---- cicd (sp and others)
 az ad app create --display-name "nagan-sp-github-actions"
 
