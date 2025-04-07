@@ -2,12 +2,15 @@ import logo from "./logo.svg";
 import "./App.css";
 
 function App() {
+  // Adding console log outside of JSX
+  console.log(process.env.REACT_APP_EXAMPLE);
+  
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit feat2 changes<code>src/App.js</code> and save to reload.
+          Edit feat3 changes <code>src/App.js</code> and save to reload.
           <br />
           Environment variable: {process.env.REACT_APP_EXAMPLE || "Not defined"}
         </p>
