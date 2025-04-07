@@ -71,7 +71,9 @@ jobs:
             naganreactjsacr.azurecr.io/reactjs-sample:latest
             naganreactjsacr.azurecr.io/reactjs-sample:${{ github.sha }}
             naganreactjsacr.azurecr.io/reactjs-sample:${{ github.run_number }}
-        build-args: ${{ steps.get-secrets.outputs.build_args }}
+        # build-args: ${{ steps.get-secrets.outputs.build_args }}
+        build-args: |
+            REACT_APP_EXAMPLE=${{ secrets.REACT_APP_EXAMPLE }}            
     
 
     - name: Deploy to Azure Container App
